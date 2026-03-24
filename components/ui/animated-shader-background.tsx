@@ -1,12 +1,20 @@
-import React, { useEffect, useRef } from 'react';
-import * as THREE from 'three';
-import { Infinity, Rocket, Shield, Brain, Play, ChevronDown } from 'lucide-react';
+import React, { useEffect, useRef } from "react";
+import * as THREE from "three";
+import {
+  Infinity,
+  Rocket,
+  Shield,
+  Brain,
+  Play,
+  ChevronDown,
+} from "lucide-react";
 
 const AnoAI = () => {
-  const containerRef = useRef(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const container = containerRef.current;
+    if (!container) return;
     const scene = new THREE.Scene();
     const camera = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
     const renderer = new THREE.WebGLRenderer({ antialias: true });
@@ -16,7 +24,9 @@ const AnoAI = () => {
     const material = new THREE.ShaderMaterial({
       uniforms: {
         iTime: { value: 0 },
-        iResolution: { value: new THREE.Vector2(window.innerWidth, window.innerHeight) }
+        iResolution: {
+          value: new THREE.Vector2(window.innerWidth, window.innerHeight),
+        },
       },
       vertexShader: `
         void main() {
@@ -82,14 +92,14 @@ const AnoAI = () => {
           o = tanh(pow(o / 100.0, vec4(1.6)));
           gl_FragColor = o * 1.5;
         }
-      `
+      `,
     });
 
     const geometry = new THREE.PlaneGeometry(2, 2);
     const mesh = new THREE.Mesh(geometry, material);
     scene.add(mesh);
 
-    let frameId;
+    let frameId: number;
     const animate = () => {
       material.uniforms.iTime.value += 0.016;
       renderer.render(scene, camera);
@@ -99,13 +109,16 @@ const AnoAI = () => {
 
     const handleResize = () => {
       renderer.setSize(window.innerWidth, window.innerHeight);
-      material.uniforms.iResolution.value.set(window.innerWidth, window.innerHeight);
+      material.uniforms.iResolution.value.set(
+        window.innerWidth,
+        window.innerHeight,
+      );
     };
-    window.addEventListener('resize', handleResize);
+    window.addEventListener("resize", handleResize);
 
     return () => {
       cancelAnimationFrame(frameId);
-      window.removeEventListener('resize', handleResize);
+      window.removeEventListener("resize", handleResize);
       container.removeChild(renderer.domElement);
       geometry.dispose();
       material.dispose();
